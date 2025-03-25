@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 def read_comments(comment_path,mode=False):
     with open(comment_path,'r',encoding='utf-8',errors="ignore") as fp:
         #第一行是数据指标标签，不要，最后一行是一个空格，不要
-        raw_data = fp.read().split('\n')[1:20]
+        raw_data = fp.read().split('\n')[1:-1]
         #每一行数据，第一个字符是标签，后续字符是评论内容
         comments = [raw_data[i][2:] for i in range(len(raw_data))]
         lables = torch.tensor([int(raw_data[i][0]) for i in range(len(raw_data))])
@@ -25,7 +25,6 @@ def process_data(comment_path,batch_size,max_len,min_freq):
     vocab = d2l.Vocab(comments, min_freq=min_freq)
     #划分训练集和测试集
     train_comment, test_comment, train_label, test_label = train_test_split(comments,labels,test_size=0.3,random_state=26,shuffle=True)
-    #鉴于绝大部分评论都在max_len个词以下，把每一条评论都处理成相同长度（max_len个词），对短评论进行填充'<unk>',对长评论进行截断
     train_features = torch.tensor([d2l.truncate_pad(
         vocab[comment], max_len, vocab['<unk>']) for comment in train_comment])
     test_features = torch.tensor([d2l.truncate_pad(
@@ -213,7 +212,7 @@ def train(net, train_iter, test_iter, loss, trainer, num_epochs,device=d2l.try_g
 batch_size = 512                                   #批量大小
 lr = 0.0003                                        #学习率
 num_epochs = 30                                    #训练几轮
-embed_size = 300                                   #词嵌入维度，我选了100维的
+embed_size = 300                                   #词嵌入维度，我选了300维的
 ffn_hiddens = 64                                   #FFN，隐藏层单元数量
 num_heads = 4                                      #注意力头的个数
 num_blks = 1                                       #transformer_block的个数
